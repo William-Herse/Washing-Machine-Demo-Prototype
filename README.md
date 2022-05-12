@@ -36,15 +36,68 @@ To control the swtich between open loop and closed loop we used a dip switch ocn
 
 During Open loop control, a button was used to cycles states. THis button is connected to a pull up resistor and a deboucing capacitor to reduce unwanted state changes. The button is connected to Interrupt Pin 2.
 
-An emergency Stop button was connected to immediately stop the system when pressed. This button was connected to the pull up interrupt input on pin 3.
+An Emergency Stop button was connected to immediately stop the system when pressed. This button was connected to the pull up interrupt input on pin 3.
 
 Finally, a 100 Ohms resistor and LED was connected to pin 7 to signify activation of the emergency stop.
 
 # Software
 
-The software interfaced with the hardware at 6 different point 
+The software interfaced with the hardware at 6 different point:
+Inputs
+  From Encoder
+  State Change Button
+  Emergency Stop Interrupt
+Outputs
+  PWM signal
+  Inverted PWM signal
+  EStop LED
+
+## State Diagram
+The State Diagram shown below forms the backbone of protype software archetecture:
+![image](https://user-images.githubusercontent.com/58684645/168018650-80cd3a6f-c6a4-4fbf-ba30-bb1bd02ba4de.png)
+
+Within the state diagram there are two superstates for the purpose of the demonstration. Firstly, superstate 0 or the open loop state consists of 4 sub-states. These sub-states are Stop, Wash, Dry and Spin.
+
+## Stop
+The Stop cycle consists of stopping the motor.
+![image](https://user-images.githubusercontent.com/58684645/168020574-8b6111e3-e378-428b-a688-93c7bb40ed19.png)
+
+## Wash
+The Wash cycle consists of spinning the washing machine quickly in one direction, then
+slowing it and then repeating this in the other direction.
+![image](https://user-images.githubusercontent.com/58684645/168020761-92beeced-7393-4d99-b316-fb1d8e797974.png)
+
+## Dry
+The Dry cycle consists of the motor starting slow and speeding up to max speed before
+slowing down and eventually stoping.
+![image](https://user-images.githubusercontent.com/58684645/168020515-e9222b24-ddec-419a-a155-81816e5860f3.png)
+
+## Spin
+The spin cycle consists of spinning fast in one direction and then rapidly changing to
+spinning in the other direction.
+![image](https://user-images.githubusercontent.com/58684645/168020892-de049a3c-4eb6-4df6-8224-78b6dbe0f8c8.png)
+
+## Sub-State Change Interrupt
+Which state the motor is in is dependent on a button driven interrupt which steps
+through the states. The function for which is below:
+![image](https://user-images.githubusercontent.com/58684645/168021013-0729b737-9cc9-4d3a-a109-27ccede2dcd8.png)
+
+The second superstate or closed loop state consists of a feedback driven controller
+which acts to maintain the motor at a certain speed regardless of the resistance the
+motor experiences. 
+
+## Closed Loop Controller
+The controller is as follows:
+![image](https://user-images.githubusercontent.com/58684645/168021373-d219a77a-9001-45cb-a4ac-2316499dccfa.png)
+
+## Emergency Stop Interrupt
+Finally, we have a button-based emergency stop interrupt:
+![image](https://user-images.githubusercontent.com/58684645/168021563-4d24f3af-4490-49fb-8f61-5229eba8e91b.png)
+When the interrupt is called, the motor is immediately stopped and the emergency LED
+is switched on. The microcontroller then enters a continuous loop which effectively
+freezes the motor. The only way to return the motor to operation is to perform a full
+reset.
 
 # References and Citation
-
 The H-Bridge Diagram is taken from Weidong Xiao, University of Sydney
 
